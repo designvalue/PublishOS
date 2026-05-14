@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { folders } from "@/lib/db/schema";
+import { uniqueFolderCopyName, uniqueFolderSlug } from "@/lib/data/folders";
 import { slugify } from "@/lib/format";
 import { withLogging } from "@/lib/logged-handler";
 
@@ -24,28 +25,8 @@ async function _post(_req: Request, { params }: { params: Promise<{ id: string }
     .limit(1);
   if (!source) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Find a fresh "<name> (copy)" name that doesn't clash with siblings.
-  const baseName = `${source.name} (copy)`;
-  let name = baseName;
-  for (let n = 2; n < 50; n++) {
-    const conditions = source.parentId
-      ? and(eq(folders.ownerId, userId), eq(folders.parentId, source.parentId), eq(folders.name, name))
-      : and(eq(folders.ownerId, userId), isNull(folders.parentId), eq(folders.name, name));
-    const [hit] = await db.select({ id: folders.id }).from(folders).where(conditions).limit(1);
-    if (!hit) break;
-    name = `${source.name} (copy ${n})`;
-  }
-
-  // Compute a unique slug within the same parent scope.
-  let slug = slugify(name);
-  for (let n = 2; n < 50; n++) {
-    const conditions = source.parentId
-      ? and(eq(folders.ownerId, userId), eq(folders.parentId, source.parentId), eq(folders.slug, slug))
-      : and(eq(folders.ownerId, userId), isNull(folders.parentId), eq(folders.slug, slug));
-    const [hit] = await db.select({ id: folders.id }).from(folders).where(conditions).limit(1);
-    if (!hit) break;
-    slug = `${slugify(name)}-${n}`;
-  }
+  const name = await uniqueFolderCopyName(userId, source.parentId, source.name);
+  const slug = await uniqueFolderSlug(userId, source.parentId, slugify(name));
 
   const [created] = await db
     .insert(folders)
@@ -57,6 +38,10 @@ async function _post(_req: Request, { params }: { params: Promise<{ id: string }
       visibility: source.visibility,
     })
     .returning();
+
+  if (!created) {
+    return NextResponse.json({ error: "Could not duplicate the folder." }, { status: 500 });
+  }
 
   return NextResponse.json({ folder: created }, { status: 201 });
 }

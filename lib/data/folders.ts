@@ -7,6 +7,52 @@ export type FolderRow = typeof folders.$inferSelect;
 export type FileRow = typeof files.$inferSelect;
 
 /**
+ * Return a slug unique under `(ownerId, parentId)` for the `folders` table,
+ * matching `/api/folders` disambiguation (`base`, `base-2`, …; then `base-<timestamp>`).
+ */
+export async function uniqueFolderSlug(
+  ownerId: string,
+  parentId: string | null,
+  baseSlug: string,
+): Promise<string> {
+  let attempt = baseSlug;
+  let n = 1;
+  while (true) {
+    const conditions = parentId
+      ? and(eq(folders.ownerId, ownerId), eq(folders.parentId, parentId), eq(folders.slug, attempt))
+      : and(eq(folders.ownerId, ownerId), isNull(folders.parentId), eq(folders.slug, attempt));
+    const [hit] = await db.select({ id: folders.id }).from(folders).where(conditions).limit(1);
+    if (!hit) return attempt;
+    n += 1;
+    attempt = `${baseSlug}-${n}`;
+    if (n > 50) return `${baseSlug}-${Date.now()}`;
+  }
+}
+
+/**
+ * Sibling folder display name for shallow duplicates: `Name (copy)`,
+ * `Name (copy 2)`, …; then `Name (copy-<timestamp>)` if needed.
+ */
+export async function uniqueFolderCopyName(
+  ownerId: string,
+  parentId: string | null,
+  sourceName: string,
+): Promise<string> {
+  let name = `${sourceName} (copy)`;
+  let n = 2;
+  while (true) {
+    const conditions = parentId
+      ? and(eq(folders.ownerId, ownerId), eq(folders.parentId, parentId), eq(folders.name, name))
+      : and(eq(folders.ownerId, ownerId), isNull(folders.parentId), eq(folders.name, name));
+    const [hit] = await db.select({ id: folders.id }).from(folders).where(conditions).limit(1);
+    if (!hit) return name;
+    if (n > 50) return `${sourceName} (copy ${Date.now()})`;
+    name = `${sourceName} (copy ${n})`;
+    n += 1;
+  }
+}
+
+/**
  * List folders the user can see at the workspace root level.
  * Includes folders they own + folders shared with them.
  */

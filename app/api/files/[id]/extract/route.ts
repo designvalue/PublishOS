@@ -5,7 +5,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { canCreate, requireSessionUser } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 import { files, folders } from "@/lib/db/schema";
-import { folderStorageKey } from "@/lib/data/folders";
+import { folderStorageKey, uniqueFolderSlug } from "@/lib/data/folders";
 import { getStorage } from "@/lib/storage";
 import { slugify } from "@/lib/format";
 import { withLogging } from "@/lib/logged-handler";
@@ -114,12 +114,25 @@ async function _post(_req: Request, { params }: { params: Promise<{ id: string }
 
   // Slurp the zip bytes into memory. JSZip needs a buffer.
   const obj = await storage.get(file.storageKey);
-  if (!obj) return NextResponse.json({ error: "Zip storage object missing." }, { status: 500 });
+  if (!obj) {
+    return NextResponse.json(
+      {
+        error:
+          "The zip file is no longer on disk (e.g. different server instance or storage cleared). Re-upload the archive, or configure durable S3 storage.",
+      },
+      { status: 404 },
+    );
+  }
 
-  const nodeStream = Readable.fromWeb(obj.stream as never);
-  const chunks: Buffer[] = [];
-  for await (const chunk of nodeStream) chunks.push(chunk as Buffer);
-  const buffer = Buffer.concat(chunks);
+  let buffer: Buffer;
+  try {
+    const nodeStream = Readable.fromWeb(obj.stream as never);
+    const chunks: Buffer[] = [];
+    for await (const chunk of nodeStream) chunks.push(chunk as Buffer);
+    buffer = Buffer.concat(chunks);
+  } catch {
+    return NextResponse.json({ error: "Could not read the zip file from storage." }, { status: 502 });
+  }
 
   let zip: JSZip;
   try {
@@ -173,31 +186,7 @@ async function _post(_req: Request, { params }: { params: Promise<{ id: string }
   const baseName = file.name.replace(/\.zip$/i, "") || "extracted";
   const rootSlug = slugify(baseName);
 
-  // Use the same uniqueSlug pattern as /api/folders so storage paths don't collide.
-  let rootSlugFinal = rootSlug;
-  {
-    let attempt = rootSlug;
-    let n = 1;
-    while (n < 50) {
-      const [clash] = await db
-        .select({ id: folders.id })
-        .from(folders)
-        .where(
-          and(
-            eq(folders.ownerId, me.id),
-            eq(folders.parentId, parentFolder.id),
-            eq(folders.slug, attempt),
-          ),
-        )
-        .limit(1);
-      if (!clash) {
-        rootSlugFinal = attempt;
-        break;
-      }
-      n += 1;
-      attempt = `${rootSlug}-${n}`;
-    }
-  }
+  const rootSlugFinal = await uniqueFolderSlug(me.id, parentFolder.id, rootSlug);
 
   // Create the root extract folder.
   const [rootFolder] = await db
@@ -210,6 +199,13 @@ async function _post(_req: Request, { params }: { params: Promise<{ id: string }
       visibility: parentFolder.visibility,
     })
     .returning();
+
+  if (!rootFolder) {
+    return NextResponse.json(
+      { error: "Could not create the destination folder. Try again." },
+      { status: 500 },
+    );
+  }
 
   // Map of zip-path → DB folder id. The root's "" maps to the root folder.
   const folderByPath = new Map<string, typeof rootFolder>();
@@ -226,25 +222,7 @@ async function _post(_req: Request, { params }: { params: Promise<{ id: string }
     const parent = folderByPath.get(parentPath);
     if (!parent) continue; // parent failed to create, skip subtree
     const slug = slugify(name) || "folder";
-    // Disambiguate within this parent.
-    let attemptSlug = slug;
-    let n = 1;
-    while (n < 50) {
-      const [clash] = await db
-        .select({ id: folders.id })
-        .from(folders)
-        .where(
-          and(
-            eq(folders.ownerId, me.id),
-            eq(folders.parentId, parent.id),
-            eq(folders.slug, attemptSlug),
-          ),
-        )
-        .limit(1);
-      if (!clash) break;
-      n += 1;
-      attemptSlug = `${slug}-${n}`;
-    }
+    const attemptSlug = await uniqueFolderSlug(me.id, parent.id, slug);
     const [created] = await db
       .insert(folders)
       .values({
@@ -255,6 +233,12 @@ async function _post(_req: Request, { params }: { params: Promise<{ id: string }
         visibility: parentFolder.visibility,
       })
       .returning();
+    if (!created) {
+      return NextResponse.json(
+        { error: "Could not create a subfolder while extracting. Try a smaller archive or retry." },
+        { status: 500 },
+      );
+    }
     folderByPath.set(p, created);
 
     // Mirror on disk for local backend.
@@ -312,6 +296,9 @@ async function _post(_req: Request, { params }: { params: Promise<{ id: string }
       let n = 2;
       while (nameSet.has(`${stem} (${n})${ext}`.toLowerCase()) && n < 1000) n++;
       finalName = `${stem} (${n})${ext}`;
+      if (nameSet.has(finalName.toLowerCase())) {
+        finalName = `${stem}-${Date.now()}${ext}`;
+      }
     }
     nameSet.add(finalName.toLowerCase());
 

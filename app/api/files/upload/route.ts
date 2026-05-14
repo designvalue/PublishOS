@@ -4,6 +4,7 @@ import { canCreate, requireSessionUser } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 import { files, folders } from "@/lib/db/schema";
 import { folderStorageKey } from "@/lib/data/folders";
+import { uniqueLiveFileNameInFolder } from "@/lib/data/file-names";
 import { getStorage } from "@/lib/storage";
 import { withLogging } from "@/lib/logged-handler";
 
@@ -40,7 +41,7 @@ async function _post(req: Request) {
   if (!folder) return NextResponse.json({ error: "Folder not found" }, { status: 404 });
 
   // Resolve a unique filename within the folder (e.g. "logo.svg" → "logo (2).svg" on collision).
-  const finalName = await uniqueFileName(folder.id, file.name || "untitled");
+  const finalName = await uniqueLiveFileNameInFolder(folder.id, file.name || "untitled");
 
   const safeName = finalName.replace(/[^A-Za-z0-9._\-() ]/g, "_");
   const folderKey = await folderStorageKey(folder);
@@ -71,6 +72,10 @@ async function _post(req: Request) {
     })
     .returning();
 
+  if (!created) {
+    return NextResponse.json({ error: "Could not save file metadata." }, { status: 500 });
+  }
+
   await db
     .update(folders)
     .set({
@@ -80,29 +85,6 @@ async function _post(req: Request) {
     .where(eq(folders.id, folder.id));
 
   return NextResponse.json({ file: created });
-}
-
-async function uniqueFileName(folderId: string, baseName: string): Promise<string> {
-  const [hit] = await db
-    .select({ id: files.id })
-    .from(files)
-    .where(and(eq(files.folderId, folderId), eq(files.name, baseName)))
-    .limit(1);
-  if (!hit) return baseName;
-
-  const dot = baseName.lastIndexOf(".");
-  const stem = dot > 0 ? baseName.slice(0, dot) : baseName;
-  const ext = dot > 0 ? baseName.slice(dot) : "";
-  for (let n = 2; n < 1000; n++) {
-    const candidate = `${stem} (${n})${ext}`;
-    const [h] = await db
-      .select({ id: files.id })
-      .from(files)
-      .where(and(eq(files.folderId, folderId), eq(files.name, candidate)))
-      .limit(1);
-    if (!h) return candidate;
-  }
-  return `${stem}-${Date.now()}${ext}`;
 }
 
 export const POST = withLogging(_post);

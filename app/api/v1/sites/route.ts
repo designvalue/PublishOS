@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { and, eq, isNull, ne } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { canCreate } from "@/lib/auth-helpers";
 import { requireApiUser } from "@/lib/api-auth";
 import { db } from "@/lib/db";
 import { files, folders } from "@/lib/db/schema";
-import { folderStorageKey } from "@/lib/data/folders";
+import { folderStorageKey, uniqueFolderSlug } from "@/lib/data/folders";
 import { getStorage } from "@/lib/storage";
 import { slugify } from "@/lib/format";
 import { hashPassword } from "@/lib/password";
@@ -199,22 +199,7 @@ async function _post(req: Request) {
 
   // -------------------- Resolve slug for folder --------------------
   const baseSlug = slugify(folderName) || "site";
-  let finalSlug = baseSlug;
-  let attempt = baseSlug;
-  let n = 1;
-  while (n < 50) {
-    const [clash] = await db
-      .select({ id: folders.id })
-      .from(folders)
-      .where(and(eq(folders.ownerId, me.id), isNull(folders.parentId), eq(folders.slug, attempt)))
-      .limit(1);
-    if (!clash) {
-      finalSlug = attempt;
-      break;
-    }
-    n += 1;
-    attempt = `${baseSlug}-${n}`;
-  }
+  const finalSlug = await uniqueFolderSlug(me.id, null, baseSlug);
 
   // -------------------- Validate optional file slug (publish slug) --------------------
   let filePublicSlug: string | null = null;
@@ -260,6 +245,10 @@ async function _post(req: Request) {
       visibility: "private",
     })
     .returning();
+
+  if (!folder) {
+    return NextResponse.json({ error: "Could not create the site folder." }, { status: 500 });
+  }
 
   const storage = await getStorage();
   if (storage.mkdir) {
@@ -337,6 +326,13 @@ async function _post(req: Request) {
         indexable: false,
       })
       .returning({ id: files.id, name: files.name, publicSlug: files.publicSlug });
+
+    if (!row) {
+      return NextResponse.json(
+        { error: "Could not save one of the uploaded files. The folder was created; check storage and retry." },
+        { status: 500 },
+      );
+    }
 
     if (input.mime === "text/html" || safeName.toLowerCase().endsWith("index.html")) {
       folderHasIndexHtml = true;

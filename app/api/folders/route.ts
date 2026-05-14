@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { canCreate, requireSessionUser } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 import { folders } from "@/lib/db/schema";
-import { folderStorageKey, listAllAccessibleFolders, listVisibleFolders } from "@/lib/data/folders";
+import {
+  folderStorageKey,
+  listAllAccessibleFolders,
+  listVisibleFolders,
+  uniqueFolderSlug,
+} from "@/lib/data/folders";
 import { slugify } from "@/lib/format";
 import { getStorage } from "@/lib/storage";
 import { withLogging } from "@/lib/logged-handler";
@@ -75,7 +80,7 @@ async function post(req: Request) {
   }
 
   // Disambiguate slug under (owner, parent)
-  const finalSlug = await uniqueSlug(slug, me.id, parentId);
+  const finalSlug = await uniqueFolderSlug(me.id, parentId, slug);
 
   const [created] = await db
     .insert(folders)
@@ -88,6 +93,10 @@ async function post(req: Request) {
       color,
     })
     .returning();
+
+  if (!created) {
+    return NextResponse.json({ error: "Could not create folder." }, { status: 500 });
+  }
 
   // Mirror on disk for local backend (no-op for S3-compatible).
   try {
@@ -106,18 +115,3 @@ async function post(req: Request) {
 export const GET = withLogging(get);
 export const POST = withLogging(post);
 export const runtime = "nodejs";
-
-async function uniqueSlug(base: string, ownerId: string, parentId: string | null): Promise<string> {
-  let attempt = base;
-  let n = 1;
-  while (true) {
-    const conditions = parentId
-      ? and(eq(folders.ownerId, ownerId), eq(folders.parentId, parentId), eq(folders.slug, attempt))
-      : and(eq(folders.ownerId, ownerId), isNull(folders.parentId), eq(folders.slug, attempt));
-    const [hit] = await db.select({ id: folders.id }).from(folders).where(conditions).limit(1);
-    if (!hit) return attempt;
-    n += 1;
-    attempt = `${base}-${n}`;
-    if (n > 50) return `${base}-${Date.now()}`;
-  }
-}

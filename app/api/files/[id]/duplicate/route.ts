@@ -4,6 +4,7 @@ import { Readable } from "node:stream";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { files, folders } from "@/lib/db/schema";
+import { uniqueFileCopyNameInFolder } from "@/lib/data/file-names";
 import { folderStorageKey } from "@/lib/data/folders";
 import { getStorage } from "@/lib/storage";
 import { withLogging } from "@/lib/logged-handler";
@@ -28,30 +29,30 @@ async function _post(_req: Request, { params }: { params: Promise<{ id: string }
     .limit(1);
   if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Compute a fresh name "<base> (copy)<.ext>" that doesn't collide inside the folder.
-  const dot = row.file.name.lastIndexOf(".");
-  const base = dot > 0 ? row.file.name.slice(0, dot) : row.file.name;
-  const ext = dot > 0 ? row.file.name.slice(dot) : "";
-  let candidate = `${base} (copy)${ext}`;
-  for (let n = 2; n < 100; n++) {
-    const [hit] = await db
-      .select({ id: files.id })
-      .from(files)
-      .where(and(eq(files.folderId, row.file.folderId), eq(files.name, candidate)))
-      .limit(1);
-    if (!hit) break;
-    candidate = `${base} (copy ${n})${ext}`;
-  }
+  const candidate = await uniqueFileCopyNameInFolder(row.file.folderId, row.file.name);
 
   // Copy bytes through the storage adapter.
   const storage = await getStorage();
   const src = await storage.get(row.file.storageKey);
-  if (!src) return NextResponse.json({ error: "Source object missing" }, { status: 502 });
+  if (!src) {
+    return NextResponse.json(
+      {
+        error:
+          "Source file is missing from storage. It may have been on another instance (/tmp) or removed — re-upload or use S3-backed storage.",
+      },
+      { status: 404 },
+    );
+  }
 
-  const nodeStream = Readable.fromWeb(src.stream as never);
-  const chunks: Buffer[] = [];
-  for await (const chunk of nodeStream) chunks.push(chunk as Buffer);
-  const bytes = Buffer.concat(chunks);
+  let bytes: Buffer;
+  try {
+    const nodeStream = Readable.fromWeb(src.stream as never);
+    const chunks: Buffer[] = [];
+    for await (const chunk of nodeStream) chunks.push(chunk as Buffer);
+    bytes = Buffer.concat(chunks);
+  } catch {
+    return NextResponse.json({ error: "Could not read the source file from storage." }, { status: 502 });
+  }
 
   const baseKey = await folderStorageKey(row.folder);
   const newKey = `${baseKey}/${candidate}`;
@@ -68,6 +69,10 @@ async function _post(_req: Request, { params }: { params: Promise<{ id: string }
       storageKey: newKey,
     })
     .returning();
+
+  if (!created) {
+    return NextResponse.json({ error: "Could not save the duplicated file." }, { status: 500 });
+  }
 
   return NextResponse.json({ file: created }, { status: 201 });
 }
