@@ -6,7 +6,7 @@ import { toast } from "@/stores/toast-store";
 /**
  * Per-user API access panel — drops into ProfileView when the viewer is
  * looking at their own profile. Issues, lists, and revokes API tokens
- * used by external clients (Claude tool-use, scripts, AI agents) to
+ * used by external clients (scripts, integrations, and automated agents) to
  * push content into the workspace via POST /api/v1/sites.
  */
 
@@ -161,7 +161,7 @@ export default function ApiTokensCard() {
           <input
             type="text"
             className="api-new-input"
-            placeholder="Name this token (e.g. Claude integration)"
+            placeholder="Name this token (e.g. CI deploy)"
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={80}

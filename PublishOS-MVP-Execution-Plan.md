@@ -53,7 +53,7 @@ isProject: false
 - **Data contracts**: Implement shared domain types + zod schemas in [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/lib/types.ts`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/lib/types.ts) and [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/lib/schemas.ts`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/lib/schemas.ts).
 - **Rendering strategy**: Server Components by default; client components only where interaction/effects/browser APIs are needed.
 - **Email provider**: `Resend` as the transactional email system (auth links, invites, notifications).
-- **Pilot model/runtime**: Anthropic Claude Sonnet 4.5 via `@anthropic-ai/sdk`.
+- **Pilot model/runtime**: server-side LLM via `@anthropic-ai/sdk` (tool calling and streaming as in the pilot module).
 - **Hosting model**: hosting/edge configuration is runtime-selectable from Admin settings (no hardcoded single provider path).
 
 ## Delivery Sequence (Vertical Slices)

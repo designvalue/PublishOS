@@ -65,7 +65,7 @@ next-env.d.ts
 # eslint
 .eslintcache
 
-# editor + AI tool state (per-machine, not shared)
+# editor local state (per-machine, not shared)
 .vscode/
 .idea/
 .claude/

@@ -309,7 +309,7 @@ export const apiTokens = sqliteTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    name: text("name").notNull(), // e.g. "Claude integration"
+    name: text("name").notNull(), // e.g. "CI deploy"
     tokenHash: text("token_hash").notNull().unique(),
     prefix: text("prefix").notNull(), // first 12 chars of plaintext for display
     lastUsedAt: integer("last_used_at", { mode: "timestamp_ms" }),

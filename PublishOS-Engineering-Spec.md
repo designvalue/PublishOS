@@ -2,7 +2,7 @@
 
 > Handoff document for building PublishOS in **Next.js 14 (App Router) + React 18 + TypeScript**.
 
-This document is written to be read by an LLM-assisted IDE (Cursor) alongside two reference files that you should also paste into the project context:
+Use this spec together with two companion references:
 
 | File | What it is | How to use it |
 |---|---|---|
@@ -14,9 +14,9 @@ When in doubt, prefer the prototype's visual / interactive behaviour over what's
 
 ---
 
-## 0. Reading order for Cursor
+## 0. Recommended reading order
 
-When starting a new task, ask Cursor to read in this order:
+When starting a new task, read in this order:
 
 1. The relevant section of this spec (architecture / component / contract)
 2. The corresponding markup + CSS + JS in `shelf-quiet.html` (search by class name or id)
@@ -44,7 +44,7 @@ Then write code.
 | Database | **PostgreSQL** + **Drizzle ORM** | Type-safe schema, migrations |
 | Object storage | **Cloudflare R2** (S3-compatible) for files; multipart upload for large files | Cheap egress, S3 SDK works |
 | Hosting | **Vercel** for the app; **Cloudflare Workers + R2** for the published-folder edge serving | Edge-cache the published folders close to visitors |
-| AI / Pilot | **Anthropic Claude Sonnet 4.5** via the Anthropic SDK; tool use for actions; stream for chat | Sets the tone the prototype establishes |
+| AI / Pilot | **Managed LLM** via the Anthropic SDK; tool use for actions; stream for chat | Matches the prototype’s Pilot behaviour |
 | Email | **Resend** | Magic links, invite emails, password rotation notifications |
 | Analytics for hosted sites | Custom — log requests at the edge, aggregate hourly into Postgres | Privacy-friendly, no third party |
 | Tests | **Vitest** + **Playwright** | Unit / component + e2e |
@@ -99,7 +99,7 @@ publishos/
 │  ├─ db/                      # Drizzle client + schema
 │  ├─ storage/                 # R2 / S3 client
 │  ├─ auth/                    # Auth.js config
-│  ├─ pilot/                   # Anthropic client + system prompts + tool definitions
+│  ├─ pilot/                   # LLM client + system prompts + tool definitions
 │  ├─ search/                  # search index builder
 │  ├─ slug.ts                  # slugify util
 │  ├─ format.ts                # format size / date / relative-time
@@ -660,7 +660,7 @@ Worker emits `X-Robots-Tag: noindex` unless `publishing.indexable === true`. Als
 
 ## 12. Pilot integration
 
-Pilot is a thin orchestration layer over Anthropic Claude.
+Pilot is a thin orchestration layer over the configured LLM provider.
 
 ### System prompt (sketch)
 
@@ -892,7 +892,7 @@ export function FolderRow({ folder }: { folder: Folder }) {
 - **No magic strings**: visibility, role, mode are typed unions.
 - **Format and lint**: Prettier (with `tailwindcss` plugin) + ESLint Next config.
 - **Commits**: conventional commits (`feat:`, `fix:`, `chore:`, `refactor:`).
-- **Branches**: short-lived feature branches, PR review by Cursor before merge.
+- **Branches**: short-lived feature branches, PR review before merge.
 
 ### File header
 
@@ -949,7 +949,7 @@ A feature is "done" when:
 - [ ] Has at least one Vitest spec or one Playwright spec
 - [ ] No `any`, no `// @ts-ignore`, no console errors
 - [ ] PR description includes a screen recording / GIF
-- [ ] Reviewed by another engineer or by Cursor with a clean diff
+- [ ] Reviewed by another engineer with a clean diff
 
 ---
 
@@ -966,7 +966,7 @@ These can wait:
 
 ---
 
-## 20. Quick start (for Cursor)
+## 20. Quick start (greenfield scaffold)
 
 ```bash
 pnpm create next-app publishos --typescript --tailwind --app --src-dir=false --import-alias='@/*'
@@ -980,9 +980,10 @@ pnpm add resend
 pnpm add -D drizzle-kit @types/node vitest @testing-library/react @testing-library/jest-dom playwright @playwright/test prettier prettier-plugin-tailwindcss
 ```
 
-Then ask Cursor:
+First milestone after install:
 
-> Read `PublishOS-Engineering-Spec.md` and `PublishOS-Product-Note.md`. Open `shelf-quiet.html` in your context. Build **Phase 0** end-to-end — primitives in `components/ui/`, design tokens in `tailwind.config.ts`, fonts in `app/layout.tsx`, brand sprite, the `cn()` helper, and a single working `<Button />` story page at `/_dev/buttons`. Verify with `pnpm dev`. Show me the diff before committing.
+1. Read `PublishOS-Engineering-Spec.md` and `PublishOS-Product-Note.md`, and keep `shelf-quiet.html` open in a browser for visual reference.
+2. Build **Phase 0** end-to-end — primitives in `components/ui/`, design tokens in `tailwind.config.ts`, fonts in `app/layout.tsx`, brand sprite, the `cn()` helper, and a single working `<Button />` story page at `/_dev/buttons`. Verify with `pnpm dev`.
 
 Then move through phases one at a time, in the order listed in §14.
 
