@@ -39,7 +39,7 @@ export default function NotificationsClient({ initial }: { initial: Initial }) {
   async function markOneRead(id: string) {
     setItems((cur) => cur.map((n) => (n.id === id && !n.readAt ? { ...n, readAt: new Date().toISOString() } : n)));
     setUnread((u) => Math.max(0, u - 1));
-    await fetch(`/api/notifications/${id}`, { method: "POST" }).catch(() => undefined);
+    await fetch(`/api/notifications/${id}`, { method: "POST", credentials: "include" }).catch(() => undefined);
   }
 
   async function markAllRead() {
@@ -47,7 +47,7 @@ export default function NotificationsClient({ initial }: { initial: Initial }) {
     const now = new Date().toISOString();
     setItems((cur) => cur.map((n) => (n.readAt ? n : { ...n, readAt: now })));
     setUnread(0);
-    const res = await fetch("/api/notifications/mark-all-read", { method: "POST" });
+    const res = await fetch("/api/notifications/mark-all-read", { method: "POST", credentials: "include" });
     if (!res.ok) toast("Could not mark all as read.");
   }
 
@@ -56,7 +56,7 @@ export default function NotificationsClient({ initial }: { initial: Initial }) {
     setItems((cur) => cur.filter((n) => n.id !== id));
     setTotal((t) => Math.max(0, t - 1));
     if (wasUnread) setUnread((u) => Math.max(0, u - 1));
-    await fetch(`/api/notifications/${id}`, { method: "DELETE" }).catch(() => undefined);
+    await fetch(`/api/notifications/${id}`, { method: "DELETE", credentials: "include" }).catch(() => undefined);
   }
 
   async function clearAll() {
@@ -64,7 +64,7 @@ export default function NotificationsClient({ initial }: { initial: Initial }) {
     setItems([]);
     setTotal(0);
     setUnread(0);
-    const res = await fetch("/api/notifications/clear-all", { method: "POST" });
+    const res = await fetch("/api/notifications/clear-all", { method: "POST", credentials: "include" });
     if (!res.ok) toast("Could not clear notifications.");
   }
 

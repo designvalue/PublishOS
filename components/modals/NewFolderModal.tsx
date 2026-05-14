@@ -124,9 +124,9 @@ function NewFolderBody({
   useEffect(() => {
     let cancelled = false;
     Promise.all([
-      fetch("/api/folders?scope=all").then((r) => (r.ok ? r.json() : { folders: [] })),
-      fetch("/api/users").then((r) => (r.ok ? r.json() : { users: [] })),
-      fetch("/api/teams").then((r) => (r.ok ? r.json() : { teams: [] })),
+      fetch("/api/folders?scope=all", { credentials: "include" }).then((r) => (r.ok ? r.json() : { folders: [] })),
+      fetch("/api/users", { credentials: "include" }).then((r) => (r.ok ? r.json() : { users: [] })),
+      fetch("/api/teams", { credentials: "include" }).then((r) => (r.ok ? r.json() : { teams: [] })),
     ]).then(([fBody, uBody, tBody]) => {
       if (cancelled) return;
       setFolders(fBody.folders ?? []);
@@ -233,6 +233,7 @@ function NewFolderBody({
     const createRes = await fetch("/api/folders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ name: trimmed, parentId, visibility: access, color }),
     });
     if (!createRes.ok) {
@@ -248,6 +249,7 @@ function NewFolderBody({
       const accessRes = await fetch(`/api/folders/${folder.id}/access`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           visibility: "shared",
           members: members.map((m) => ({ userId: m.userId, role: m.role })),

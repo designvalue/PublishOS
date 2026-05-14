@@ -45,12 +45,12 @@ function MoveBody({
   useEffect(() => {
     let cancelled = false;
     Promise.all([
-      fetch("/api/folders?scope=all").then((r) => (r.ok ? r.json() : Promise.reject(r.status))),
+      fetch("/api/folders?scope=all", { credentials: "include" }).then((r) => (r.ok ? r.json() : Promise.reject(r.status))),
       // Load the source so we can highlight its current parent + skip itself
       // (and, for folders, all descendants) in the destination tree.
       kind === "folder"
-        ? fetch(`/api/folders/${target.folderId}`).then((r) => (r.ok ? r.json() : null))
-        : fetch(`/api/files/${target.folderId}/publishing`).then((r) => (r.ok ? r.json() : null)),
+        ? fetch(`/api/folders/${target.folderId}`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null))
+        : fetch(`/api/files/${target.folderId}/publishing`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
     ])
       .then(([listBody, srcBody]) => {
         if (cancelled) return;
@@ -65,7 +65,7 @@ function MoveBody({
           // list by finding any folder whose id matches the file's folderId — but
           // we don't have it from the publishing payload. Hit /api/files/[id]/publishing
           // doesn't include folderId; we'll resolve by file row directly.
-          fetch(`/api/files/${target.folderId}`, { method: "HEAD" }).catch(() => undefined);
+          fetch(`/api/files/${target.folderId}`, { method: "HEAD", credentials: "include" }).catch(() => undefined);
           setOriginParentId(undefined);
         }
 
@@ -221,6 +221,7 @@ function MoveBody({
         const res = await fetch(`/api/files/${target.folderId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ folderId: selected }),
         });
         if (!res.ok) {
@@ -233,6 +234,7 @@ function MoveBody({
         const res = await fetch(`/api/folders/${target.folderId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ parentId: selected }),
         });
         if (!res.ok) {

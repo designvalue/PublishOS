@@ -1,7 +1,12 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth.config";
 
-const { auth } = NextAuth(authConfig);
+// Must match `lib/auth.ts` — without `trustHost`, session cookies may not be
+// trusted on Vercel and `authorized` sees no user while API routes still 401.
+const { auth } = NextAuth({
+  trustHost: true,
+  ...authConfig,
+});
 
 export const proxy = auth;
 

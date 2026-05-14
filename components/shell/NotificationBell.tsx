@@ -50,7 +50,7 @@ export default function NotificationBell() {
   // ---------- polling ----------
   const refreshCount = useCallback(async () => {
     try {
-      const res = await fetch("/api/notifications/unread", { cache: "no-store" });
+      const res = await fetch("/api/notifications/unread", { cache: "no-store", credentials: "include" });
       if (!res.ok) return;
       const json = (await res.json()) as { unread: number };
       setUnread(json.unread);
@@ -74,7 +74,7 @@ export default function NotificationBell() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/notifications?limit=${PAGE_SIZE}`, { cache: "no-store" });
+      const res = await fetch(`/api/notifications?limit=${PAGE_SIZE}`, { cache: "no-store", credentials: "include" });
       if (!res.ok) throw new Error("Could not load notifications.");
       const json = (await res.json()) as FeedResponse;
       setItems(json.items);
@@ -118,7 +118,7 @@ export default function NotificationBell() {
     setItems((cur) => cur.map((n) => (n.id === id && !n.readAt ? { ...n, readAt: Date.now() } : n)));
     setUnread((u) => Math.max(0, u - 1));
     try {
-      await fetch(`/api/notifications/${id}`, { method: "POST" });
+      await fetch(`/api/notifications/${id}`, { method: "POST", credentials: "include" });
     } catch {
       /* swallow — next poll corrects */
     }
@@ -130,7 +130,7 @@ export default function NotificationBell() {
     setItems((cur) => cur.map((n) => (n.readAt ? n : { ...n, readAt: now })));
     setUnread(0);
     try {
-      await fetch("/api/notifications/mark-all-read", { method: "POST" });
+      await fetch("/api/notifications/mark-all-read", { method: "POST", credentials: "include" });
     } catch {
       /* swallow */
     }
@@ -142,7 +142,7 @@ export default function NotificationBell() {
     setTotal((t) => Math.max(0, t - 1));
     if (wasUnread) setUnread((u) => Math.max(0, u - 1));
     try {
-      await fetch(`/api/notifications/${id}`, { method: "DELETE" });
+      await fetch(`/api/notifications/${id}`, { method: "DELETE", credentials: "include" });
     } catch {
       /* swallow */
     }
@@ -154,7 +154,7 @@ export default function NotificationBell() {
     setTotal(0);
     setUnread(0);
     try {
-      await fetch("/api/notifications/clear-all", { method: "POST" });
+      await fetch("/api/notifications/clear-all", { method: "POST", credentials: "include" });
     } catch {
       /* swallow */
     }

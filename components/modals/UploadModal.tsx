@@ -477,7 +477,7 @@ function DestinationPicker({
   // Fetch the full tree so subfolders are reachable.
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/folders?scope=all")
+    fetch("/api/folders?scope=all", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((body: { folders: Folder[] }) => {
         if (!cancelled) setFolders(body.folders);
@@ -581,6 +581,7 @@ function DestinationPicker({
     const res = await fetch("/api/folders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ name, parentId: cursor, visibility: "private" }),
     });
     setCreating(false);
