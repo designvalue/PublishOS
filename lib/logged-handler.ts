@@ -41,7 +41,9 @@ export function withLogging<H extends (...args: any[]) => Promise<Response> | Re
       console.error("withLogging caught error in handler:", err);
       response = NextResponse.json({ error: "Internal server error" }, { status: 500 });
       void recordAccess(req, response, started, opts.source);
-      throw err;
+      // Do not rethrow: Next would replace this JSON with an HTML error page,
+      // which breaks Auth.js clients that expect JSON from `/api/auth/*`.
+      return response;
     }
 
     void recordAccess(req, response, started, opts.source);
