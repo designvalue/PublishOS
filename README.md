@@ -154,6 +154,8 @@ AUTH_SECRET=your-long-random-secret-here
 # AUTH_URL=https://your-domain.example
 ```
 
+**Vercel:** In **Settings → Environment Variables**, set **`AUTH_SECRET`** (16+ characters) and **`AUTH_URL`** (your deployment URL, e.g. `https://your-project.vercel.app`) for Preview and Production. The build can complete without them in some CI steps, but the **running** app needs a real `AUTH_SECRET` for Auth.js.
+
 **Optional OAuth (Google):** if both are set, the login UI can offer Google sign-in.
 
 ```bash
@@ -284,7 +286,7 @@ The repo lists `@playwright/test` as a dev dependency; add Playwright specs and 
 ## Product and engineering references
 
 - High-level build phases and checkpoints: [`PublishOS-MVP-Execution-Plan.md`](PublishOS-MVP-Execution-Plan.md)
-- Day-to-day agent notes for this repo: [`AGENTS.md`](AGENTS.md) and [`CLAUDE.md`](CLAUDE.md)
+- Architecture, contracts, and build order: [`PublishOS-Engineering-Spec.md`](PublishOS-Engineering-Spec.md)
 
 ---
 

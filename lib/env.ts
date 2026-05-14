@@ -17,7 +17,24 @@ const schema = z.object({
   EMAIL_FROM: z.string().email().optional(),
 });
 
-const parsed = schema.safeParse(process.env);
+/**
+ * During `next build`, Next loads server modules (e.g. route handlers) to collect page data.
+ * CI hosts like Vercel often do not inject Production env vars into that build step unless
+ * configured — but `AUTH_SECRET` is still required at runtime. Use a parse-only placeholder
+ * when we know we are in the package "build" lifecycle, never at request/runtime.
+ */
+function envSource(): NodeJS.ProcessEnv {
+  const buildLifecycle = process.env.npm_lifecycle_event === "build";
+  const nextBuildPhase =
+    process.env.NEXT_PHASE === "phase-production-build" ||
+    process.env.NEXT_PHASE === "phase-development-build";
+  if (!process.env.AUTH_SECRET && (buildLifecycle || nextBuildPhase)) {
+    return { ...process.env, AUTH_SECRET: "build-time-placeholder-do-not-use-in-prod" };
+  }
+  return process.env;
+}
+
+const parsed = schema.safeParse(envSource());
 if (!parsed.success) {
   const issues = parsed.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`).join("\n");
   throw new Error(`Invalid environment variables:\n${issues}\n\nSee .env.example for required keys.`);
