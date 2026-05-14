@@ -43,14 +43,14 @@ isProject: false
 # PublishOS MVP Build Plan
 
 ## Scope And Source Of Truth
-- Follow implementation direction from [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/PublishOS-Engineering-Spec.md`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/PublishOS-Engineering-Spec.md).
+- Follow implementation direction from [`PublishOS-Engineering-Spec.md`](PublishOS-Engineering-Spec.md).
 - Treat prototype behavior in `shelf-quiet.html` as visual/interaction authority, and product/copy from `PublishOS-Product-Note.md`.
 - Deliver MVP only; defer non-MVP items listed in spec section 19.
 
 ## Architecture Baseline
 - **App framework**: Next.js 14 App Router + React 18 + strict TypeScript.
 - **State split**: TanStack Query (server/cache), Zustand (`ui-store`, `toast-store`) for global UI controls, URL params for tab/filter/sort state.
-- **Data contracts**: Implement shared domain types + zod schemas in [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/lib/types.ts`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/lib/types.ts) and [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/lib/schemas.ts`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/lib/schemas.ts).
+- **Data contracts**: Implement shared domain types + zod schemas in [`lib/types.ts`](lib/types.ts) and [`lib/schemas.ts`](lib/schemas.ts).
 - **Rendering strategy**: Server Components by default; client components only where interaction/effects/browser APIs are needed.
 - **Email provider**: `Resend` as the transactional email system (auth links, invites, notifications).
 - **Pilot model/runtime**: server-side LLM via `@anthropic-ai/sdk` (tool calling and streaming as in the pilot module).
@@ -60,10 +60,10 @@ isProject: false
 
 ### Phase 0: Foundation
 - Scaffold project, dependencies, lint/format/test tooling.
-- Implement tokenized design system in Tailwind + CSS variables in [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/tailwind.config.ts`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/tailwind.config.ts) and [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/styles/globals.css`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/styles/globals.css).
-- Add Inter + shared `BrandSprite` in root layout [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/app/layout.tsx`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/app/layout.tsx).
-- Build all primitives under [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/components/ui/`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/components/ui/).
-- Add `cn()` helper in [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/lib/cn.ts`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/lib/cn.ts).
+- Implement tokenized design system in Tailwind + CSS variables in [`tailwind.config.ts`](tailwind.config.ts) and [`styles/globals.css`](styles/globals.css).
+- Add Inter + shared `BrandSprite` in root layout [`app/layout.tsx`](app/layout.tsx).
+- Build all primitives under [`components/ui/`](components/ui/).
+- Add `cn()` helper in [`lib/cn.ts`](lib/cn.ts).
 
 ### Phase 1: Auth + App Shell
 - Build auth route group (`(auth)`) and login page UI.
@@ -71,8 +71,8 @@ isProject: false
 - Stub pages: home, stats, logs, people, settings.
 
 ### Phase 2: Folders + Files Core
-- Create Drizzle schema and DB access layer for folders/files in [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/lib/db/`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/lib/db/).
-- Implement folder/file API contracts in [`/Users/srinivasand/Desktop/Design Value/Github/PublishOS/app/api/`](/Users/srinivasand/Desktop/Design%20Value/Github/PublishOS/app/api/).
+- Create Drizzle schema and DB access layer for folders/files in [`lib/db/`](lib/db/).
+- Implement folder/file API contracts in [`app/api/`](app/api/).
 - Build home workspace list + `FolderRow` variants and folder detail page (`/folders/[...path]`) including breadcrumbs and subfolder mode.
 
 ### Phase 3: Sharing Controls
