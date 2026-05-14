@@ -153,7 +153,21 @@ function inferMime(name: string, fallback: string): string {
   return map[ext] || fallback || "application/octet-stream";
 }
 
-function publishedContentUnavailablePage(fileName: string): Response {
+function attrEscape(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+function publishedContentUnavailablePage(
+  fileName: string,
+  opts: { settingsUrl: string; onVercel: boolean; storageKind: "local" | "s3" },
+): Response {
+  const why =
+    opts.storageKind === "s3"
+      ? "This app is using <strong>S3-compatible storage</strong>, but the file could not be read from the bucket (wrong key, deleted object, or credentials). If <code>Public URL</code> is set in Settings, public pages try your CDN first — make sure it matches how objects are exposed."
+      : opts.onVercel
+        ? "This deployment uses <strong>local disk</strong> for files. On Vercel that disk is <strong>ephemeral</strong> and not shared between servers, so published links often break after a deploy or on a different instance."
+        : "The server could not read this file from <strong>local storage</strong> (path moved, permissions, or disk issue).";
+
   const body = `<!doctype html>
 <html lang="en">
 <head>
@@ -166,17 +180,33 @@ function publishedContentUnavailablePage(fileName: string): Response {
   body { margin: 0; min-height: 100vh; display: grid; place-items: center;
     font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
     background: #FBFAF6; color: #14130F; padding: 24px; }
-  .card { max-width: 420px; background: #fff; border: 1px solid #EAE9E3; border-radius: 14px;
-    padding: 26px 24px; box-shadow: 0 12px 36px rgba(20,19,15,0.08); line-height: 1.5; font-size: 14px; }
+  .card { max-width: 460px; background: #fff; border: 1px solid #EAE9E3; border-radius: 14px;
+    padding: 26px 24px; box-shadow: 0 12px 36px rgba(20,19,15,0.08); line-height: 1.55; font-size: 14px; }
   h1 { font-size: 17px; margin: 0 0 10px; letter-spacing: -0.012em; }
-  p { margin: 0; color: #4A4840; font-size: 13px; }
+  p { margin: 0 0 14px; color: #4A4840; font-size: 13px; }
+  p:last-child { margin-bottom: 0; }
   code { font-size: 12px; background: #F2F0EA; padding: 2px 6px; border-radius: 4px; }
+  ol { margin: 0 0 14px; padding-left: 1.25rem; color: #4A4840; font-size: 13px; }
+  li { margin-bottom: 6px; }
+  .cta { display: inline-block; margin-top: 4px; padding: 10px 16px; border-radius: 9px;
+    background: #14130F; color: #fff !important; text-decoration: none; font-size: 13px; font-weight: 500; }
+  .cta:hover { opacity: 0.92; }
+  .sub { font-size: 12px; color: #6B6962; margin-top: 12px; }
 </style>
 </head>
 <body>
 <div class="card">
   <h1>Content temporarily unavailable</h1>
-  <p>The published file <strong>${htmlEscape(fileName)}</strong> is registered, but this server could not load its content from storage. If you are a visitor, try again later or contact whoever shared this link. If you run this workspace, use durable <strong>S3-compatible storage</strong> (with a public URL for published files) in Settings, then re-upload or re-publish.</p>
+  <p>The published file <strong>${htmlEscape(fileName)}</strong> is registered, but this server could not load its bytes right now.</p>
+  <p>${why}</p>
+  <p><strong>If you manage this workspace</strong> (Super Admin):</p>
+  <ol>
+    <li>Open <strong>Settings → Storage</strong> and switch to <strong>S3 / R2</strong> (or fix your bucket credentials).</li>
+    <li>Set <strong>Public URL</strong> to your R2 public dev URL or CDN origin so <code>/c/…</code> links can redirect to the bucket.</li>
+    <li><strong>Re-upload</strong> or <strong>re-publish</strong> files after changing storage so objects exist in the bucket.</li>
+  </ol>
+  <p><a class="cta" href="${attrEscape(opts.settingsUrl)}">Open Settings → Storage</a></p>
+  <p class="sub">Visitors: try again later or contact whoever shared this link.</p>
 </div>
 </body>
 </html>`;
@@ -307,11 +337,16 @@ async function _serve(req: Request, ctx: Ctx, method: "GET" | "POST"): Promise<R
       userAgent: req.headers.get("user-agent"),
     });
     const accept = req.headers.get("accept") ?? "";
+    const settingsUrl = new URL("/settings", req.url).href;
     if (accept.includes("text/html")) {
-      return publishedContentUnavailablePage(file.name);
+      return publishedContentUnavailablePage(file.name, {
+        settingsUrl,
+        onVercel: process.env.VERCEL === "1",
+        storageKind: storage.kind,
+      });
     }
     return new Response(
-      "Published file is registered but content is unavailable from this server. Configure S3-compatible storage with a public URL, or contact the publisher.",
+      `Published file is registered but content is unavailable (${storage.kind} storage). Super Admin: ${settingsUrl} → Storage — use S3/R2 + Public URL, then re-upload. Visitors: contact the publisher.`,
       { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8", "Retry-After": "120" } },
     );
   }

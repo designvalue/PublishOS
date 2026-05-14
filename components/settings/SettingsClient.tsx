@@ -63,12 +63,14 @@ export default function SettingsClient({
   signup,
   usage,
   apiAccess,
+  deployedOnVercel = false,
 }: {
   initial: StorageSnapshot;
   email: EmailSnapshot;
   signup: SignupSnapshot;
   usage: StorageUsageSnapshot;
   apiAccess: { enabled: boolean };
+  deployedOnVercel?: boolean;
 }) {
   const [active, setActive] = useState<SectionId>("general");
 
@@ -105,7 +107,7 @@ export default function SettingsClient({
           {active === "general" && <GeneralSection />}
           {active === "signup" && <SignupSection initial={signup} />}
           {active === "api" && <ApiAccessSection initial={apiAccess} />}
-          {active === "storage" && <StorageSection initial={initial} />}
+          {active === "storage" && <StorageSection initial={initial} deployedOnVercel={deployedOnVercel} />}
           {active === "usage" && <UsageSection usage={usage} />}
           {active === "email" && <EmailSection initial={email} />}
           {active === "logs" && <LogsSection />}
@@ -190,7 +192,13 @@ function LogsSection() {
 /* ============================================================
    Storage (real, with /api/settings/storage)
    ============================================================ */
-function StorageSection({ initial }: { initial: StorageSnapshot }) {
+function StorageSection({
+  initial,
+  deployedOnVercel,
+}: {
+  initial: StorageSnapshot;
+  deployedOnVercel: boolean;
+}) {
   const [backend, setBackend] = useState<StorageBackend>(initial.storageBackend);
   const [storageRoot, setStorageRoot] = useState(initial.storageRoot);
   const [s3Bucket, setS3Bucket] = useState(initial.s3Bucket ?? "");
@@ -253,6 +261,13 @@ function StorageSection({ initial }: { initial: StorageSnapshot }) {
       title="Storage"
       sub="Choose where uploaded files live. Local keeps everything on this machine; S3-compatible is the production setup."
     >
+      {deployedOnVercel && (
+        <div className="settings-field-warn" style={{ marginBottom: 16 }}>
+          This app is running on <strong>Vercel</strong>. Local filesystem storage is not durable — files can disappear
+          between deploys or requests, and <strong>public /c/… links will often show “content unavailable”</strong>. Use{" "}
+          <strong>S3 / R2</strong>, set a <strong>Public URL</strong> for your bucket, then re-upload files.
+        </div>
+      )}
       {/* Backend picker */}
       <div className="storage-pickers">
         <button
@@ -263,6 +278,7 @@ function StorageSection({ initial }: { initial: StorageSnapshot }) {
           <span className="storage-pick-name">Local filesystem</span>
           <span className="storage-pick-desc">
             Files live on the same disk as this app under <code>./{storageRoot || "storage"}</code>.
+            {deployedOnVercel ? " Not suitable for production on Vercel." : ""}
           </span>
         </button>
         <button
@@ -318,11 +334,15 @@ function StorageSection({ initial }: { initial: StorageSnapshot }) {
             wide
           />
           <SettingsField
-            label="Public URL (optional)"
+            label={deployedOnVercel ? "Public URL (recommended on Vercel)" : "Public URL (optional)"}
             value={s3PublicUrl}
             onChange={setS3PublicUrl}
             placeholder="https://files.example.com"
-            hint="Where visitors fetch files. Leave blank to serve through the app."
+            hint={
+              deployedOnVercel
+                ? "Use your R2 public dev URL or CDN origin (no trailing slash) so public /c/… links can load from the bucket when this server has no local copy."
+                : "Where visitors fetch files. Leave blank to serve only through this app (single long-lived server)."
+            }
             wide
           />
           <SettingsField

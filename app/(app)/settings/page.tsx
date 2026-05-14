@@ -22,6 +22,7 @@ export default async function SettingsPage() {
       signup={signup}
       usage={usage}
       apiAccess={{ enabled: apiAccessEnabled }}
+      deployedOnVercel={process.env.VERCEL === "1"}
       initial={{
         storageBackend: settings.storageBackend,
         storageRoot: settings.storageRoot,
