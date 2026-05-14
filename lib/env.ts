@@ -1,14 +1,23 @@
 import { z } from "zod";
 
-const defaultDatabasePath =
-  process.env.VERCEL === "1" && !process.env.DATABASE_PATH ? "/tmp/publishos.db" : "publishos.db";
+const hasPostgresUrl = () => {
+  const u = process.env.DATABASE_URL?.trim();
+  return !!u && (u.startsWith("postgres://") || u.startsWith("postgresql://"));
+};
+
+const defaultDatabasePath = hasPostgresUrl()
+  ? "publishos.db"
+  : process.env.VERCEL === "1" && !process.env.DATABASE_PATH
+    ? "/tmp/publishos.db"
+    : "publishos.db";
 
 const schema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 
-  // SQLite file path. On Vercel the deploy root is read-only, so when DATABASE_PATH
-  // is unset we default to /tmp (ephemeral per instance — fine for demos; use a
-  // hosted DB for durable production data).
+  // Neon / Postgres (optional). When set, the app uses Neon instead of SQLite.
+  DATABASE_URL: z.string().optional(),
+
+  // SQLite file path (ignored when DATABASE_URL is a postgres URL).
   DATABASE_PATH: z.string().default(defaultDatabasePath),
   AUTH_SECRET: z.string().min(16, "AUTH_SECRET must be at least 16 chars"),
   AUTH_URL: z.string().url().optional(),

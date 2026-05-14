@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["better-sqlite3"],
   // Drizzle reads migration SQL at runtime; ensure it is copied into the serverless trace.
   outputFileTracingIncludes: {
-    "/*": ["./drizzle/**/*.sql", "./drizzle/meta/**/*"],
+    "/*": ["./drizzle/**/*.sql", "./drizzle/meta/**/*", "./drizzle-pg/**/*.sql", "./drizzle-pg/meta/**/*"],
   },
 };
 
