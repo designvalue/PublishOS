@@ -153,6 +153,39 @@ function inferMime(name: string, fallback: string): string {
   return map[ext] || fallback || "application/octet-stream";
 }
 
+function publishedContentUnavailablePage(fileName: string): Response {
+  const body = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Content unavailable — ${htmlEscape(fileName)} · PublishOS</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+    background: #FBFAF6; color: #14130F; padding: 24px; }
+  .card { max-width: 420px; background: #fff; border: 1px solid #EAE9E3; border-radius: 14px;
+    padding: 26px 24px; box-shadow: 0 12px 36px rgba(20,19,15,0.08); line-height: 1.5; font-size: 14px; }
+  h1 { font-size: 17px; margin: 0 0 10px; letter-spacing: -0.012em; }
+  p { margin: 0; color: #4A4840; font-size: 13px; }
+  code { font-size: 12px; background: #F2F0EA; padding: 2px 6px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Content temporarily unavailable</h1>
+  <p>The published file <strong>${htmlEscape(fileName)}</strong> exists in the workspace, but its binary could not be loaded from storage. On serverless hosting, local disk is often ephemeral — configure <strong>S3-compatible storage</strong> in workspace settings and re-upload or re-publish.</p>
+</div>
+</body>
+</html>`;
+  return new Response(body, {
+    status: 503,
+    headers: { "Content-Type": "text/html; charset=utf-8", "Retry-After": "120" },
+  });
+}
+
 async function _serve(req: Request, ctx: Ctx, method: "GET" | "POST"): Promise<Response> {
   const started = Date.now();
   const { id } = await ctx.params;
@@ -224,7 +257,25 @@ async function _serve(req: Request, ctx: Ctx, method: "GET" | "POST"): Promise<R
   const storage = await getStorage();
   const obj = await storage.get(file.storageKey);
   if (!obj) {
-    return new Response("Object missing in storage", { status: 502 });
+    void logAccess({
+      method,
+      path: `/c/${id}`,
+      status: 503,
+      durationMs: Date.now() - started,
+      source: "public",
+      fileId,
+      folderId: file.folderId,
+      ip: clientIp(req),
+      userAgent: req.headers.get("user-agent"),
+    });
+    const accept = req.headers.get("accept") ?? "";
+    if (accept.includes("text/html")) {
+      return publishedContentUnavailablePage(file.name);
+    }
+    return new Response(
+      "Published file exists but its content is not available from storage (configure durable S3-compatible storage and re-upload).",
+      { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8", "Retry-After": "120" } },
+    );
   }
 
   const mime = inferMime(file.name, file.mime);
