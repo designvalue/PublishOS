@@ -283,13 +283,6 @@ The repo lists `@playwright/test` as a dev dependency; add Playwright specs and 
 
 ---
 
-## Product and engineering references
-
-- High-level build phases and checkpoints: [`PublishOS-MVP-Execution-Plan.md`](PublishOS-MVP-Execution-Plan.md)
-- Architecture, contracts, and build order: [`PublishOS-Engineering-Spec.md`](PublishOS-Engineering-Spec.md)
-
----
-
 ## Contributing
 
 1. Fork and clone the repository.
