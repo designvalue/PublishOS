@@ -22,6 +22,7 @@
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/SQLite-Drizzle-003B57?logo=sqlite&logoColor=white" alt="SQLite + Drizzle" />
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT" /></a>
 </p>
 
 ---
@@ -307,7 +308,9 @@ The repo lists `@playwright/test` as a dev dependency; add Playwright specs and 
 
 ## License
 
-License file not present in this repository at the time of writing. Add a `LICENSE` file to clarify terms for contributors and users.
+PublishOS is released under the **[MIT License](LICENSE)**.
+
+Copyright (c) 2026 Design Value. See [`LICENSE`](LICENSE) for the full text.
 
 ---
 
