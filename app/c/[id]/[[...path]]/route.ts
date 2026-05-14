@@ -176,7 +176,7 @@ function publishedContentUnavailablePage(fileName: string): Response {
 <body>
 <div class="card">
   <h1>Content temporarily unavailable</h1>
-  <p>The published file <strong>${htmlEscape(fileName)}</strong> exists in the workspace, but its binary could not be loaded from storage. On serverless hosting, local disk is often ephemeral — configure <strong>S3-compatible storage</strong> in workspace settings and re-upload or re-publish.</p>
+  <p>The published file <strong>${htmlEscape(fileName)}</strong> is registered, but this server could not load its content from storage. If you are a visitor, try again later or contact whoever shared this link. If you run this workspace, use durable <strong>S3-compatible storage</strong> (with a public URL for published files) in Settings, then re-upload or re-publish.</p>
 </div>
 </body>
 </html>`;
@@ -255,8 +255,46 @@ async function _serve(req: Request, ctx: Ctx, method: "GET" | "POST"): Promise<R
   }
 
   const storage = await getStorage();
+  const cdn =
+    method === "GET" && file.publishMode === "public"
+      ? (storage.publicUrl?.(file.storageKey) ?? null)
+      : null;
+
+  // When R2/S3 exposes a public base URL, the object may still be reachable at the CDN
+  // even if this serverless instance has no local copy (e.g. ephemeral /tmp on Vercel).
+  if (cdn && file.indexable) {
+    void logAccess({
+      method,
+      path: `/c/${id}`,
+      status: 307,
+      durationMs: Date.now() - started,
+      bytes: file.sizeBytes ?? 0,
+      source: "public",
+      fileId,
+      folderId: file.folderId,
+      ip: clientIp(req),
+      userAgent: req.headers.get("user-agent"),
+    });
+    return NextResponse.redirect(cdn, 307);
+  }
+
   const obj = await storage.get(file.storageKey);
   if (!obj) {
+    if (cdn) {
+      void logAccess({
+        method,
+        path: `/c/${id}`,
+        status: 307,
+        durationMs: Date.now() - started,
+        bytes: file.sizeBytes ?? 0,
+        source: "public",
+        fileId,
+        folderId: file.folderId,
+        ip: clientIp(req),
+        userAgent: req.headers.get("user-agent"),
+      });
+      return NextResponse.redirect(cdn, 307);
+    }
     void logAccess({
       method,
       path: `/c/${id}`,
@@ -273,7 +311,7 @@ async function _serve(req: Request, ctx: Ctx, method: "GET" | "POST"): Promise<R
       return publishedContentUnavailablePage(file.name);
     }
     return new Response(
-      "Published file exists but its content is not available from storage (configure durable S3-compatible storage and re-upload).",
+      "Published file is registered but content is unavailable from this server. Configure S3-compatible storage with a public URL, or contact the publisher.",
       { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8", "Retry-After": "120" } },
     );
   }
