@@ -19,19 +19,13 @@ export default function LoginPage() {
   );
 }
 
-function DemoLoginNote({ onFill }: { onFill: () => void }) {
+function DemoLoginHint({ onFill }: { onFill: () => void }) {
   return (
-    <div className="login-warn login-demo-note" role="note">
-      <strong>Demo account</strong>
-      <p className="login-demo-note-lines">
-        Email: <code>{DEMO_LOGIN_EMAIL}</code>
-        <br />
-        Password: <code>{DEMO_LOGIN_PASSWORD}</code>
-      </p>
-      <button type="button" className="btn login-demo-fill" onClick={onFill}>
-        Use demo credentials
+    <p className="login-demo-hint">
+      <button type="button" className="login-demo-link" onClick={onFill}>
+        Sign in with demo account
       </button>
-    </div>
+    </p>
   );
 }
 
@@ -79,8 +73,6 @@ function LoginForm() {
           <BrandWordmark size="lg" />
         </div>
         <p className="login-tagline">Your folders, files, and sites — on the web in seconds.</p>
-
-        {showDemoNote && <DemoLoginNote onFill={fillDemoCredentials} />}
 
         <form className="login-form" onSubmit={onSubmit}>
           <label>
@@ -141,6 +133,7 @@ function LoginForm() {
           <button type="submit" className="btn btn-primary login-btn" disabled={loading}>
             {loading ? "Signing in…" : "Sign in to PublishOS"}
           </button>
+          {showDemoNote && <DemoLoginHint onFill={fillDemoCredentials} />}
         </form>
 
         {googleEnabled && (
