@@ -12,9 +12,11 @@
 <p align="center">
   <a href="https://publishos.designvalue.co/"><strong>Landing page</strong></a>
   &nbsp;·&nbsp;
-  <a href="#live-demo"><strong>Live demo</strong></a>
-  &nbsp;·&nbsp;
   <a href="#screenshots"><strong>Screenshots</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#features"><strong>Features</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#live-demo"><strong>Live demo</strong></a>
   &nbsp;·&nbsp;
   <a href="docs/DEPLOY.md"><strong>Deploy guide</strong></a>
   &nbsp;·&nbsp;
@@ -31,29 +33,13 @@
 
 ---
 
-## Website
-
-**[publishos.designvalue.co](https://publishos.designvalue.co/)** — product overview, features, and how PublishOS works.
-
----
-
-## Live demo
-
-| | |
-|---|---|
-| **URL** | [publishosapp.designvalue.co/login](https://publishosapp.designvalue.co/login) |
-| **Email** | `demo@designvalue.co` |
-| **Password** | `designvalue` |
-
-On the demo host, use **Sign in with demo account** below the sign-in button to fill the form, then **Sign in to PublishOS**.
-
----
-
 ## What is PublishOS?
 
 PublishOS is an open-source workspace for **sites as folders**: upload HTML, CSS, images, and ZIPs; organise work in a tree; **publish individual files** with public or password-protected URLs; and manage **people, teams, stats, and access logs** — without a heavy CMS for simple static sites.
 
 Built by [Design Value](https://designvalue.co).
+
+**Website** — [publishos.designvalue.co](https://publishos.designvalue.co/) — product overview, features, and how PublishOS works.
 
 ---
 
@@ -118,6 +104,18 @@ Built by [Design Value](https://designvalue.co).
 | **Workspace** | People, teams, roles, stats, access logs, ⌘K search |
 | **Auth** | Email/password, optional Google OAuth, password reset via SMTP |
 | **Ops** | S3-compatible storage, API tokens, `POST /api/v1/sites` |
+
+---
+
+## Live demo
+
+| | |
+|---|---|
+| **URL** | [publishosapp.designvalue.co/login](https://publishosapp.designvalue.co/login) |
+| **Email** | `demo@designvalue.co` |
+| **Password** | `designvalue` |
+
+On the demo host, use **Sign in with demo account** below the sign-in button to fill the form, then **Sign in to PublishOS**.
 
 ---
 
