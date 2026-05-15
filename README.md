@@ -10,6 +10,8 @@
 </p>
 
 <p align="center">
+  <a href="https://publishos.designvalue.co/"><strong>Landing page</strong></a>
+  &nbsp;·&nbsp;
   <a href="#live-demo"><strong>Live demo</strong></a>
   &nbsp;·&nbsp;
   <a href="#screenshots"><strong>Screenshots</strong></a>
@@ -26,6 +28,12 @@
   <img src="https://img.shields.io/badge/Postgres%20%7C%20SQLite-Drizzle-003B57" alt="Database" />
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License" /></a>
 </p>
+
+---
+
+## Website
+
+**[publishos.designvalue.co](https://publishos.designvalue.co/)** — product overview, features, and how PublishOS works.
 
 ---
 
@@ -179,6 +187,8 @@ Next.js 16 · React 19 · Auth.js v5 · Drizzle · SQLite or Postgres · Local o
 
 <p align="center">
   <sub>
+    <a href="https://publishos.designvalue.co/">Landing page</a>
+    ·
     <a href="https://publishosapp.designvalue.co/login">Live demo</a>
     ·
     <a href="docs/DEPLOY.md">Deploy guide</a>
