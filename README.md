@@ -5,45 +5,132 @@
 <h1 align="center">PublishOS</h1>
 
 <p align="center">
-  <strong>Folder-first publishing.</strong> Drop a workspace folder with an <code>index.html</code>, control access, and share a live URL.
+  <strong>Folder-first publishing.</strong> Organise files in folders, publish any asset with its own URL, and share static sites in seconds.
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> ·
-  <a href="#tech-stack">Stack</a> ·
-  <a href="#getting-started">Getting started</a> ·
-  <a href="#configuration">Configuration</a> ·
-  <a href="#project-layout">Layout</a> ·
-  <a href="#api-overview">API</a>
+  <a href="#live-demo"><strong>Live demo</strong></a> ·
+  <a href="#screenshots">Screenshots</a> ·
+  <a href="docs/DEPLOY.md"><strong>Deploy guide</strong></a> ·
+  <a href="#getting-started">Run locally</a> ·
+  <a href="#features">Features</a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white" alt="Next.js 16" />
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/SQLite-Drizzle-003B57?logo=sqlite&logoColor=white" alt="SQLite + Drizzle" />
+  <img src="https://img.shields.io/badge/Postgres%20%7C%20SQLite-Drizzle-003B57" alt="Postgres or SQLite" />
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT" /></a>
 </p>
+
+<p align="center">
+  <a href="https://publishosapp.designvalue.co/login"><img src="docs/screenshots/home-folders.png" alt="PublishOS workspace" width="720" /></a>
+</p>
+
+---
+
+## Live demo
+
+Try the hosted workspace at **[publishosapp.designvalue.co](https://publishosapp.designvalue.co/login)**.
+
+| | |
+|---|---|
+| **URL** | [https://publishosapp.designvalue.co/login](https://publishosapp.designvalue.co/login) |
+| **Email** | `demo@designvalue.co` |
+| **Password** | `designvalue` |
+
+The login page shows a **Demo account** callout on that host only. Use **Use demo credentials** to fill the form, then **Sign in to PublishOS**.
+
+> **Note:** The demo account must exist on that deployment. If sign-in fails, register once at `/register` with the same email, or ask an admin to create the user.
 
 ---
 
 ## Overview
 
-PublishOS is a self-hostable web app for managing **sites as folders**: create folders, upload static assets (HTML, CSS, images, archives), tune **sharing and publishing** (public, private, password), and track **activity** (stats, logs, notifications). It targets teams and individuals who want one clear workflow from files on disk to a URL—without a separate CMS for simple static sites.
+PublishOS is a self-hostable web app for managing **sites as folders**: upload HTML, CSS, images, and ZIP archives; organise work in a tree; **publish individual files** with public or password-protected URLs; and run a small workspace with **people, teams, stats, and logs**.
 
-## Brand assets in the repo
+Built by [Design Value](https://designvalue.co). Crafted for teams who want a straight path from files on disk to a shareable link—without a heavy CMS for simple static sites.
 
-App icons shipped with the Next.js app (used in the shell and for README display on GitHub):
+---
 
-| Asset | Path |
-|--------|------|
-| Default app icon | [`app/icon.png`](app/icon.png) |
-| Apple touch | [`app/apple-icon.png`](app/apple-icon.png) |
-| Favicon | [`app/favicon.ico`](app/favicon.ico) |
+## Screenshots
 
-The optional static **marketing** landing site lives in a local `marketing/` directory in this workspace; that folder is **not tracked in Git** for this repository so it stays out of the remote.
+### Sign in and onboarding
 
-Optional UI screenshots for this README: add images under `docs/screenshots/` (for example `home.png`, `folder-detail.png`) and reference them with relative paths so they render on GitHub.
+<p align="center">
+  <img src="docs/screenshots/login.png" alt="Sign in with demo credentials" width="380" />
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/register.png" alt="Create workspace" width="380" />
+</p>
+
+<p align="center"><sub>Sign in · Create workspace</sub></p>
+
+<p align="center">
+  <img src="docs/screenshots/forgot-password.png" alt="Forgot password" width="380" />
+</p>
+
+<p align="center"><sub>Password reset flow (SMTP configurable in Settings)</sub></p>
+
+### Home workspace
+
+<p align="center">
+  <img src="docs/screenshots/home-empty.png" alt="Home — drop files to begin" width="720" />
+</p>
+
+<p align="center"><sub>Drag-and-drop upload with folder destination picker</sub></p>
+
+<p align="center">
+  <img src="docs/screenshots/home-folders.png" alt="Home — folder list" width="720" />
+</p>
+
+<p align="center"><sub>All folders — private, shared, and org-wide filters</sub></p>
+
+<p align="center">
+  <img src="docs/screenshots/home-profile-menu.png" alt="Profile menu" width="720" />
+</p>
+
+<p align="center"><sub>Profile, Settings (Super Admin), and sign out</sub></p>
+
+### Folders and publishing
+
+<p align="center">
+  <img src="docs/screenshots/new-folder-modal.png" alt="New folder modal" width="720" />
+</p>
+
+<p align="center"><sub>Create folders at the root or nested — private or shared, with colour tags</sub></p>
+
+<p align="center">
+  <img src="docs/screenshots/folder-detail.png" alt="Folder detail" width="720" />
+</p>
+
+<p align="center"><sub>Subfolders, files, metadata, and quick actions</sub></p>
+
+<p align="center">
+  <img src="docs/screenshots/publish-file.png" alt="Publish file from context menu" width="720" />
+</p>
+
+<p align="center"><sub>Publish any file to get its own <code>/c/…</code> URL — public or password-protected</sub></p>
+
+<p align="center">
+  <img src="docs/screenshots/folder-actions.png" alt="Folder actions menu" width="720" />
+</p>
+
+<p align="center"><sub>Rename, duplicate, move, download as zip, and more</sub></p>
+
+### People and settings
+
+<p align="center">
+  <img src="docs/screenshots/people.png" alt="People and teams" width="720" />
+</p>
+
+<p align="center"><sub>Workspace members, roles, and invitations</sub></p>
+
+<p align="center">
+  <img src="docs/screenshots/settings.png" alt="Workspace settings" width="720" />
+</p>
+
+<p align="center"><sub>Defaults, sign-up policy, API access, storage, email, and access logs</sub></p>
 
 ---
 
@@ -51,54 +138,32 @@ Optional UI screenshots for this README: add images under `docs/screenshots/` (f
 
 ### Workspace and content
 
-- **Folder tree** with breadcrumbs, nested folders, and a home workspace view.
-- **Files** with upload (multipart), size limits, MIME handling, and collision-safe naming.
-- **ZIP extract** into a folder where supported.
-- **`index.html` awareness** so folders can represent publishable sites.
-- **Trash** with restore and purge flows for files and folders.
-- **Duplicate** files and folders.
-- **Download** folder archives where implemented.
+- **Folder tree** with breadcrumbs, nested folders, and a home workspace view
+- **File upload** (multipart), ZIP **extract**, collision-safe naming, and trash with restore
+- **`index.html` awareness** for publishable site folders
+- **Duplicate**, **move**, and **download** (folder zip) where supported
 
-### Sharing and publishing
+### Publishing
 
-- **Share drawer** for access and publishing controls on folders.
-- **Publishing modes** (e.g. off / public / password-gated) with validation.
-- **Slugs** and hosting-oriented settings driven from the app.
+- Per-file **publish modes**: off, public, or password-gated
+- Public URLs at **`/c/<id-or-slug>`** with optional search indexing
+- **Share drawer** and folder-level visibility (private / shared)
 
-### Discovery and navigation
+### Collaboration
 
-- **Command palette search** (keyboard shortcut from the app shell) wired to a search API.
-- **Sort and filter** state integrated with the UI (URL-backed where applicable).
+- **People** and **teams**, invitations, workspace roles (Super Admin, Admin, Editor, Viewer)
+- **Command palette** search (`⌘K`), stats, access logs, and in-app notifications
 
-### People and collaboration
+### Authentication
 
-- **People** views and user-centric actions (profile, roles where applicable).
-- **Teams** and **invitations** APIs for workspace membership.
-- **Workspace roles** (e.g. owner / admin / editor / viewer) affecting capabilities such as uploads.
+- **Auth.js v5** — email/password and optional **Google OAuth**
+- Registration with optional **domain allowlist**
+- Password reset when SMTP is configured in Settings
 
-### Insights and system activity
+### Operators and automation
 
-- **Stats** and **logs** routes for usage and anomaly surfacing.
-- **Notifications** (list, unread counts, mark read / clear).
-- **Live feed** API for recent activity-style data.
-
-### Authentication and account
-
-- **Auth.js (NextAuth) v5** with **credentials** sign-in and optional **Google OAuth**.
-- **JWT sessions** with a secure `AUTH_SECRET`.
-- **Registration** with optional **signup domain allowlist** (admin-configurable).
-- **Password reset** and **change password** flows (email-dependent when SMTP is configured).
-- **Avatar** upload for the signed-in user.
-- **Must-change-password** gate surfaced in the shell when required.
-
-### Settings and operators
-
-- **App settings**: storage backend (**local filesystem** vs **S3-compatible**), email (SMTP), signup policy, API access toggles, and related operator controls.
-- **API tokens** for programmatic access (create/revoke; used by versioned APIs when enabled).
-
-### Programmatic / AI-friendly ingestion
-
-- **`POST /api/v1/sites`** — Bearer-token authenticated endpoint to create a **new folder** and push **HTML or multi-file** sites in one request (designed for tools and automation). Bypasses the session cookie proxy; enable and manage tokens from settings when available.
+- **Settings**: storage (local or **S3-compatible**), SMTP, sign-up policy, API access
+- **API tokens** and **`POST /api/v1/sites`** for programmatic HTML / multi-file ingestion
 
 ---
 
@@ -107,98 +172,76 @@ Optional UI screenshots for this README: add images under `docs/screenshots/` (f
 | Layer | Choice |
 |--------|--------|
 | Framework | [Next.js 16](https://nextjs.org/) App Router |
-| Language | TypeScript (strict) |
-| UI | React 19, Radix UI primitives, **Tailwind CSS v4** (`@import "tailwindcss"` in [`styles/globals.css`](styles/globals.css)) plus design tokens and component-scoped class names |
-| Auth | Auth.js v5 (`next-auth@beta`), `@auth/drizzle-adapter` |
-| Database | SQLite via `better-sqlite3`, [Drizzle ORM](https://orm.drizzle.team/) |
-| Passwords | `bcryptjs` |
-| Client data | TanStack Query for mutations/cache; Zustand for global UI |
-| Object storage | Local dir under configurable root, or S3-compatible (R2, AWS, etc.) via **app settings** (see [`lib/storage/`](lib/storage/)) |
+| UI | React 19, Radix UI, Tailwind CSS v4 |
+| Auth | Auth.js v5, `@auth/drizzle-adapter` |
+| Database | **SQLite** (dev / single server) or **Postgres** via `DATABASE_URL` |
+| ORM | [Drizzle](https://orm.drizzle.team/) |
+| Object storage | Local disk or S3-compatible (R2, AWS S3, MinIO) — configured in-app |
 | Validation | Zod |
 
 ---
 
-## Getting started
+## Deploy to production
+
+Full instructions for **Vercel, AWS, Render, Azure**, and **VPS/Docker** — environment variables, Postgres, S3 storage, custom domains, demo login, and troubleshooting:
+
+### → [docs/DEPLOY.md](docs/DEPLOY.md)
+
+**Production checklist (all platforms):**
+
+| Requirement | Why |
+|-------------|-----|
+| `AUTH_SECRET` (≥ 16 chars) | Session signing |
+| `AUTH_URL` = `https://your-domain.com` | Auth callbacks and cookies |
+| `DATABASE_URL` (Postgres) | Durable metadata on serverless / multi-instance hosts |
+| **Settings → Storage** → S3/R2 + **Public URL** | Durable file blobs and reliable `/c/…` links |
+
+Example stack for [publishosapp.designvalue.co](https://publishosapp.designvalue.co): **Vercel** + **Neon Postgres** + **S3-compatible storage**.
+
+---
+
+## Run locally
 
 ### Prerequisites
 
-- **Node.js** 20+ (LTS recommended)
-- **pnpm** (the repo is set up for `pnpm`; you can adapt for `npm` or `yarn` if needed)
+- **Node.js** 20+
+- **pnpm**
 
-### 1. Install dependencies
+### Setup
 
 ```bash
+git clone https://github.com/designvalue/PublishOS.git
+cd PublishOS
 pnpm install
-```
 
-### 2. Environment variables
-
-Copy the template and edit locally (`.env.local` stays gitignored; [`.env.example`](.env.example) is safe to commit):
-
-```bash
 cp .env.example .env.local
-# Then set AUTH_SECRET — at least 16 characters, e.g.:
-# echo "AUTH_SECRET=$(openssl rand -base64 32)" >> .env.local
-```
+# AUTH_SECRET=$(openssl rand -base64 32)
+# AUTH_URL=http://localhost:3000
 
-Minimum required values:
-
-```bash
-# Required — at least 16 characters; generate e.g. openssl rand -base64 32
-AUTH_SECRET=your-long-random-secret-here
-
-# Optional — defaults to publishos.db in the project root (gitignored)
-# DATABASE_PATH=publishos.db
-
-# Optional — canonical URL for Auth.js callbacks in production
-# AUTH_URL=https://your-domain.example
-```
-
-**Vercel:** In **Settings → Environment Variables**, set **`AUTH_SECRET`** (16+ characters) and **`AUTH_URL`** (your deployment URL, e.g. `https://your-project.vercel.app`) for Preview and Production. The build can complete without them in some CI steps, but the **running** app needs a real `AUTH_SECRET` for Auth.js.
-
-**Optional OAuth (Google):** if both are set, the login UI can offer Google sign-in.
-
-```bash
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-```
-
-**Optional transactional email (Resend):** for magic-link or email-dependent flows when wired in the app.
-
-```bash
-RESEND_API_KEY=
-EMAIL_FROM=noreply@your-domain.example
-```
-
-The authoritative schema for parsed env vars is [`lib/env.ts`](lib/env.ts).
-
-### 3. Create the database schema
-
-```bash
-pnpm drizzle-kit push
-```
-
-For migration-based workflows:
-
-```bash
-pnpm drizzle-kit generate   # emit SQL under drizzle/
-pnpm drizzle-kit migrate      # apply migrations
-```
-
-### 4. Run the development server
-
-```bash
+pnpm drizzle-kit push   # SQLite schema
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Unauthenticated visitors are sent to **`/login`**. Use **Create a workspace** (register) on `/register` to bootstrap the first user if sign-up is open.
+Open [http://localhost:3000](http://localhost:3000) → `/login` or `/register` for the first user.
 
-### 5. Production build
+### Production build (local)
 
 ```bash
 pnpm build
 pnpm start
 ```
+
+### Environment variables
+
+See [`.env.example`](.env.example) and [`lib/env.ts`](lib/env.ts).
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `AUTH_SECRET` | Yes (runtime) | Auth.js secret |
+| `AUTH_URL` | Recommended | Public origin, e.g. `http://localhost:3000` |
+| `DATABASE_URL` | Optional | Postgres; omit for SQLite |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth |
+| `NEXT_PUBLIC_GOOGLE_ENABLED` | Optional | Show Google button when `1` |
 
 ---
 
@@ -206,21 +249,19 @@ pnpm start
 
 ### Database
 
-- **`DATABASE_PATH`** — path to the SQLite file. Default `publishos.db` in the repo root.
-- Database artifacts (`*.db`, journals, WAL) are **gitignored**.
+- **Postgres:** set `DATABASE_URL`; migrations run from `drizzle-pg/` on startup.
+- **SQLite:** default `publishos.db`; use `pnpm drizzle-kit push` locally.
 
 ### File storage
 
-Storage is **not** configured only through environment variables: the active backend is read from **`app_settings`** (see [`lib/data/settings.ts`](lib/data/settings.ts)).
+Configured by a **Super Admin** under **Settings → Storage** (stored in `app_settings`):
 
-- **Local (default):** files live under a configurable root (default relative **`storage/`**, gitignored).
-- **S3-compatible:** set bucket, region, endpoint, access key, secret, and optional public URL in **Settings** in the app. If S3 fields are incomplete, the app **falls back to local** storage rather than failing writes.
+- **Local** — `./storage` or a path on a persistent volume (single-server only).
+- **S3-compatible** — bucket, region, endpoint, keys, and **Public URL** for CDN-backed `/c/…` links.
 
-### Auth and routing
+### Auth routing
 
-- **Edge-safe auth config:** [`lib/auth.config.ts`](lib/auth.config.ts) — imported by the Next.js proxy.
-- **Full auth (DB, credentials):** [`lib/auth.ts`](lib/auth.ts).
-- **Proxy / middleware:** [`proxy.ts`](proxy.ts) — protects app routes; allows `/api/auth/*`, **`/api/v1/*`** (Bearer tokens), static icon routes, and **`/brand/*`** without a session.
+- [`proxy.ts`](proxy.ts) — session gate; public: `/login`, `/register`, `/c/*`, `/api/auth/*`, `/api/v1/*`.
 
 ---
 
@@ -228,20 +269,19 @@ Storage is **not** configured only through environment variables: the active bac
 
 ```
 app/
-  (app)/                 # Authenticated app: home, folders, stats, logs, people, settings, profile, trash, …
-  (auth)/                # login, register, password reset, …
-  api/                   # Route handlers: folders, files, search, teams, invitations, settings, v1, …
-components/              # Shell, folder views, modals, share drawer, search palette, …
+  (app)/          # Home, folders, stats, people, settings, trash, …
+  (auth)/         # Login, register, password reset
+  api/            # REST handlers + /api/v1/sites
+components/       # Shell, modals, share drawer, search
 lib/
-  auth.ts / auth.config.ts
-  db/                    # Drizzle client + schema
-  data/                  # Server-only data access used by RSCs and APIs
-  storage/               # Local + S3 backends
-  env.ts                 # Validated environment
-proxy.ts                 # Auth gate (Next.js 16 “proxy” convention)
-styles/globals.css       # Design tokens and global styles
-# marketing/             # optional local-only static site (gitignored in this repo)
-drizzle/                 # Generated migrations (when used)
+  db/             # Drizzle + schema
+  storage/        # Local + S3 backends
+  data/           # Server data access
+docs/
+  DEPLOY.md       # Deployment guide
+  screenshots/    # README images
+drizzle/          # SQLite migrations
+drizzle-pg/       # Postgres migrations
 ```
 
 ---
@@ -250,11 +290,10 @@ drizzle/                 # Generated migrations (when used)
 
 | Area | Auth | Examples |
 |------|------|----------|
-| Session (browser) | Cookie session via Auth.js | `/api/folders`, `/api/files`, `/api/search`, … |
-| NextAuth | Same | `/api/auth/*` |
-| Versioned HTTP API | `Authorization: Bearer <token>` | `POST /api/v1/sites` — create folder + files from JSON/HTML |
+| Browser session | Cookie (Auth.js) | `/api/folders`, `/api/files`, `/api/search` |
+| Versioned API | `Authorization: Bearer pos_…` | `POST /api/v1/sites` |
 
-API token issuance and **API access** toggles are tied to settings and account UI when enabled. See [`lib/api-auth.ts`](lib/api-auth.ts) for Bearer resolution.
+See [`lib/api-auth.ts`](lib/api-auth.ts).
 
 ---
 
@@ -266,49 +305,41 @@ API token issuance and **API access** toggles are tied to settings and account U
 | `pnpm build` | Production build |
 | `pnpm start` | Serve production build |
 | `pnpm lint` | ESLint |
-| `pnpm test` | Vitest unit tests |
-| `pnpm drizzle-kit push` | Push schema to DB (dev-friendly) |
-| `pnpm drizzle-kit generate` | Create migration files |
-| `pnpm drizzle-kit migrate` | Run migrations |
+| `pnpm test` | Vitest |
+| `pnpm drizzle-kit push` | Push SQLite schema |
+| `pnpm drizzle-kit migrate --config=drizzle.config.pg.ts` | Postgres migrations (manual) |
 
 ---
 
-## Testing
+## Security
 
-```bash
-pnpm test
-```
-
-The repo lists `@playwright/test` as a dev dependency; add Playwright specs and config as needed for end-to-end tests.
+- Never commit `.env.local`, `*.db`, or `storage/`.
+- Rotate `AUTH_SECRET` if exposed.
+- Treat API tokens like passwords.
+- For production, use **Postgres + S3** on ephemeral/serverless hosts (see [deploy guide](docs/DEPLOY.md)).
 
 ---
 
 ## Contributing
 
-1. Fork and clone the repository.
-2. Create a branch for your change.
-3. Run `pnpm lint` and `pnpm test` before opening a pull request.
-4. Keep diffs focused; match existing patterns in `lib/data` and `app/api`.
-
----
-
-## Security notes
-
-- Never commit **`.env.local`**, database files, or the **`storage/`** directory.
-- Rotate **`AUTH_SECRET`** if it is ever leaked.
-- In production, set **`AUTH_URL`** to your public origin so OAuth and email links resolve correctly.
-- Treat **API tokens** like passwords; store them in a secret manager, not in client-side code.
+1. Fork and clone the repo.
+2. Branch, change, run `pnpm lint` and `pnpm test`.
+3. Open a pull request with a focused diff.
 
 ---
 
 ## License
 
-PublishOS is released under the **[MIT License](LICENSE)**.
-
-Copyright (c) 2026 Design Value. See [`LICENSE`](LICENSE) for the full text.
+**[MIT License](LICENSE)** — Copyright (c) 2026 Design Value.
 
 ---
 
 <p align="center">
-  <sub>Built with Next.js, Drizzle, and Auth.js.</sub>
+  <sub>
+    <a href="https://publishosapp.designvalue.co/login">Live demo</a>
+    ·
+    <a href="docs/DEPLOY.md">Deploy guide</a>
+    ·
+    Crafted with ❤️ <a href="https://designvalue.co">Design Value</a>
+  </sub>
 </p>

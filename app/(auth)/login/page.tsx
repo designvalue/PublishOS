@@ -2,15 +2,36 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import BrandWordmark from "@/components/shell/BrandWordmark";
+import {
+  DEMO_LOGIN_EMAIL,
+  DEMO_LOGIN_PASSWORD,
+  isDemoLoginDeployment,
+} from "@/lib/demo-login";
 
 export default function LoginPage() {
   return (
     <Suspense fallback={<main className="login-view" />}>
       <LoginForm />
     </Suspense>
+  );
+}
+
+function DemoLoginNote({ onFill }: { onFill: () => void }) {
+  return (
+    <div className="login-warn login-demo-note" role="note">
+      <strong>Demo account</strong>
+      <p className="login-demo-note-lines">
+        Email: <code>{DEMO_LOGIN_EMAIL}</code>
+        <br />
+        Password: <code>{DEMO_LOGIN_PASSWORD}</code>
+      </p>
+      <button type="button" className="btn login-demo-fill" onClick={onFill}>
+        Use demo credentials
+      </button>
+    </div>
   );
 }
 
@@ -23,8 +44,19 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showDemoNote, setShowDemoNote] = useState(false);
+
+  useEffect(() => {
+    setShowDemoNote(isDemoLoginDeployment(window.location.hostname));
+  }, []);
 
   const googleEnabled = !!process.env.NEXT_PUBLIC_GOOGLE_ENABLED;
+
+  function fillDemoCredentials() {
+    setEmail(DEMO_LOGIN_EMAIL);
+    setPassword(DEMO_LOGIN_PASSWORD);
+    setError(null);
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,6 +79,8 @@ function LoginForm() {
           <BrandWordmark size="lg" />
         </div>
         <p className="login-tagline">Your folders, files, and sites — on the web in seconds.</p>
+
+        {showDemoNote && <DemoLoginNote onFill={fillDemoCredentials} />}
 
         <form className="login-form" onSubmit={onSubmit}>
           <label>

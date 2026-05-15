@@ -3445,6 +3445,19 @@ a { color: inherit; text-decoration: none; }
   padding: 0 5px;
   border-radius: 3px;
 }
+.login-demo-note { margin-bottom: 20px; }
+.login-demo-note strong { display: block; margin-bottom: 6px; font-size: 13px; }
+.login-demo-note-lines { margin: 0 0 10px; font-size: 12.5px; }
+.login-demo-fill {
+  width: 100%;
+  justify-content: center;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: var(--bg);
+  border: 1px solid var(--amber-border);
+}
+.login-demo-fill:hover { background: #fff; }
 .login-actions-stack {
   display: flex;
   flex-direction: column;
